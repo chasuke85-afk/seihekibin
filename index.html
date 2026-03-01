@@ -115,6 +115,9 @@
             <button onclick="copyShareURL()" style="height:50px; background:white; color:var(--guide-blue); border:2px solid var(--guide-blue); border-radius:12px; font-weight:bold; font-size:0.9rem; cursor:pointer;">
                 🔗 項目リストだけをURLで共有する
             </button>
+            <button onclick="copyFullDataURL()" style="height:50px; background:var(--accent); color:white; border:none; border-radius:12px; font-weight:bold; font-size:0.9rem; cursor:pointer;">
+                🎁 内容（色・量）も含めてURLで共有する
+            </button>
         </div>
     </div>
 
@@ -164,7 +167,6 @@
             {id:'pre-4', items:['ロリ','ショタ','お姉さん','妹・姉','ギャル','メスガキ','清楚','清楚ビッチ','無口','クーデレ','地雷系','TS','ツンデレ','天然・ドジっ子','小悪魔','ギャップ萌え','外国人・ハーフ','男の娘','眼鏡女子','オタク女子','強気・男勝り','スポーツ女子','高学歴女子','一人称名前']}, 
             {id:'pre-5', items:['ローション・オイル','汗','あくび','くしゃみ','焦らし','指舐め','声','囁き・耳攻め','首絞め','命令','催眠','目隠し','緊縛','放置','拘束','M','S','キス','ハグ']} 
         ];
-        // タグ付け対象のグループID
         const TAGGABLE_GROUPS = ['pre-3', 'pre-5'];
         const COLORS = { pink: '#ff5d8f', blue: '#6366f1' };
         let selectedItems = [];
@@ -172,31 +174,32 @@
         let currentCategory = '2D';
         const ALL_PRESETS = PRESET_DATA.flatMap(g => g.items);
 
-        // URL短縮化：インデックス方式の読み込み
         function loadFromURL() {
             const params = new URLSearchParams(window.location.search);
-            const data = params.get('items');
-            if (data) {
+            const itemsData = params.get('items');
+            const fullData = params.get('data');
+
+            if (fullData) {
+                try {
+                    selectedItems = JSON.parse(decodeURIComponent(atob(fullData)));
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                } catch(e) { console.error("データ読み込み失敗", e); }
+            } else if (itemsData) {
                 try {
                     let items = [];
-                    if (data.includes(',') || !isNaN(data.split('_')[0])) {
-                        const parts = data.split('_');
-                        if (parts[0]) {
-                            parts[0].split(',').forEach(idx => {
-                                const name = ALL_PRESETS[parseInt(idx)];
-                                if (name) {
-                                    const group = PRESET_DATA.find(g => g.items.includes(name));
-                                    items.push({ name: name, color: COLORS.pink, level: 0, note: '', side: '', isTaggable: group ? TAGGABLE_GROUPS.includes(group.id) : false });
-                                }
-                            });
-                        }
-                        if (parts[1]) {
-                            const customs = JSON.parse(decodeURIComponent(atob(parts[1])));
-                            customs.forEach(c => items.push({ name: c, color: COLORS.pink, level: 0, note: '', side: '', isTaggable: false }));
-                        }
-                    } else {
-                        const names = JSON.parse(decodeURIComponent(atob(data)));
-                        items = names.map(n => ({ name: n, color: COLORS.pink, level: 0, note: '', side: '', isTaggable: false }));
+                    const parts = itemsData.split('_');
+                    if (parts[0]) {
+                        parts[0].split(',').forEach(idx => {
+                            const name = ALL_PRESETS[parseInt(idx)];
+                            if (name) {
+                                const group = PRESET_DATA.find(g => g.items.includes(name));
+                                items.push({ name: name, color: COLORS.pink, level: 0, note: '', side: '', isTaggable: group ? TAGGABLE_GROUPS.includes(group.id) : false });
+                            }
+                        });
+                    }
+                    if (parts[1]) {
+                        const customs = JSON.parse(decodeURIComponent(atob(parts[1])));
+                        customs.forEach(c => items.push({ name: c, color: COLORS.pink, level: 0, note: '', side: '', isTaggable: false }));
                     }
                     selectedItems = items;
                     window.history.replaceState({}, document.title, window.location.pathname);
@@ -215,7 +218,14 @@
             let shortData = presetIndices.join(',');
             if (customNames.length > 0) { shortData += '_' + btoa(encodeURIComponent(JSON.stringify(customNames))); }
             const url = window.location.origin + window.location.pathname + '?items=' + shortData;
-            navigator.clipboard.writeText(url).then(() => { alert("「空の瓶シート」の短縮URLをコピーしました！"); });
+            navigator.clipboard.writeText(url).then(() => { alert("「空の瓶シート」のURLをコピーしました！"); });
+        }
+
+        function copyFullDataURL() {
+            if (selectedItems.length === 0) return alert("共有するデータがありません！");
+            const fullData = btoa(encodeURIComponent(JSON.stringify(selectedItems)));
+            const url = window.location.origin + window.location.pathname + '?data=' + fullData;
+            navigator.clipboard.writeText(url).then(() => { alert("「現在の瓶の中身」も含めたURLをコピーしました！"); });
         }
 
         function selectCategory(cat, el) {
@@ -306,13 +316,12 @@
                 const card = document.createElement('div');
                 card.className = 'bottle-card';
                 
-                // サイドタグのHTML生成
                 let sideTagsHTML = '';
                 if(b.isTaggable) {
                     sideTagsHTML = `
                         <div class="side-tag-container">
-                            <div class="side-tag ${b.side==='する側'?'active':''}" onclick="updateSide(${i}, 'する側')">#する側</div>
-                            <div class="side-tag ${b.side==='される側'?'active':''}" onclick="updateSide(${i}, 'される側')">#される側</div>
+                            <div class="side-tag ${b.side==='相手側'?'active':''}" onclick="updateSide(${i}, '相手側')">#相手側</div>
+                            <div class="side-tag ${b.side==='自分側'?'active':''}" onclick="updateSide(${i}, '自分側')">#自分側</div>
                         </div>
                     `;
                 }
