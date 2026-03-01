@@ -7,7 +7,7 @@
     <style>
         :root { --bg: #fdfbfb; --accent: #ff4d79; --blue: #6366f1; --rule-color: #e63946; --guide-blue: #4361ee; }
         * { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; box-sizing: border-box; }
-        input[type="text"], textarea { -webkit-user-select: text; user-select: text; border: 1px solid #ddd; border-radius: 8px; font-size: 0.9rem; padding: 10px; }
+        input[type="text"], input[type="number"], textarea { -webkit-user-select: text; user-select: text; border: 1px solid #ddd; border-radius: 8px; font-size: 0.9rem; padding: 10px; }
 
         body { font-family: sans-serif; background: var(--bg); display: flex; flex-direction: column; align-items: center; padding: 0; color: #444; margin: 0; }
         
@@ -40,6 +40,11 @@
         .bottle-frame { width: 65px; height: 100px; border: 3px solid #333; border-radius: 4px 4px 22px 22px; margin: 12px auto; position: relative; overflow: hidden; background: #f0f0f0; }
         .liquid { position: absolute; bottom: 0; width: 100%; transition: height 0.1s linear; }
         .p-btn { width: 40px; height: 40px; border-radius: 50%; border: none; background: #f0f0f0; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; touch-action: none; }
+        
+        /* パーセント入力用スタイル */
+        .percent-input { width: 50px; text-align: center; border: 1px solid #eee; background: #f9f9f9; padding: 4px; border-radius: 4px; font-weight: bold; font-size: 0.85rem; -moz-appearance: textfield; }
+        .percent-input::-webkit-inner-spin-button, .percent-input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+
         .del-btn { position: absolute; top: 8px; right: 8px; width: 24px; height: 24px; background: #eee; color: #999; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold; }
         .comment-area { width: 100%; margin-top: 10px; font-size: 0.75rem; height: 45px; resize: none; border: 1px solid #f0f0f0; background: #fafafa; }
 
@@ -85,7 +90,7 @@
             <span class="box-title">〜 使い方 〜</span>
             <div style="font-size: 0.8rem; line-height: 1.8; color: var(--guide-blue); font-weight: bold; text-align: center;">
                 1. 瓶を最大20個選ぶ（名称変更もOK）<br>
-                2. 下の瓶に「色」と「量」を注ぐ<br>
+                2. 下の瓶に「色」と「量」を注ぐ（直接入力も可）<br>
                 3. 完成したらスクリーンショットで保存！
             </div>
             <button class="btn-mini" onclick="toggleModal(true)" style="width:100%; margin-top:12px; background:var(--rule-color); height:40px; font-size:0.85rem;">色のルールを見る</button>
@@ -208,7 +213,7 @@
                 document.getElementById('chip-' + name)?.classList.remove('selected');
             } else {
                 if (selectedItems.length >= 20) return alert("上限20個です！");
-                selectedItems.push({ name: name, color: COLORS.pink, level: 50, note: '', side: '', isTaggable: !!isTaggable });
+                selectedItems.push({ name: name, color: COLORS.pink, level: 0, note: '', side: '', isTaggable: !!isTaggable });
                 document.getElementById('chip-' + name)?.classList.add('selected');
             }
             renderBottles();
@@ -219,7 +224,7 @@
             const val = document.getElementById('customInput').value.trim();
             if (!val) return;
             if (selectedItems.length >= 20) return alert("上限20個です！");
-            selectedItems.push({ name: val, color: COLORS.pink, level: 50, note: '', side: '', isTaggable: false });
+            selectedItems.push({ name: val, color: COLORS.pink, level: 0, note: '', side: '', isTaggable: false });
             document.getElementById('customInput').value = '';
             renderBottles();
             saveState();
@@ -249,7 +254,10 @@
                     <div class="bottle-frame"><div id="liq-${i}" class="liquid" style="height:${b.level}%; background:${b.color}; opacity:0.8;"></div></div>
                     <div style="display:flex; align-items:center; justify-content:center; gap:8px;">
                         <button class="p-btn" onmousedown="startPress(${i},-2)" ontouchstart="startPress(${i},-2)" onmouseup="stopPress()" ontouchend="stopPress()">−</button>
-                        <span id="lv-${i}" style="font-size:0.85rem; font-weight:bold; width:35px;">${b.level}%</span>
+                        <div style="display:flex; align-items:center;">
+                            <input type="number" class="percent-input" id="inp-${i}" value="${b.level}" min="0" max="100" oninput="updateLevelInput(${i}, this.value)">
+                            <span style="font-size:0.8rem; font-weight:bold; margin-left:2px;">%</span>
+                        </div>
                         <button class="p-btn" onmousedown="startPress(${i},2)" ontouchstart="startPress(${i},2)" onmouseup="stopPress()" ontouchend="stopPress()">+</button>
                     </div>
                     <textarea class="comment-area" placeholder="解説..." onchange="updateNote(${i}, this.value)">${b.note || ''}</textarea>
@@ -258,26 +266,46 @@
             });
         }
 
+        // 入力フォームからレベルを更新
+        function updateLevelInput(i, val) {
+            let n = parseInt(val);
+            if (isNaN(n)) n = 0;
+            if (n < 0) n = 0;
+            if (n > 100) n = 100;
+            selectedItems[i].level = n;
+            document.getElementById(`liq-${i}`).style.height = n + '%';
+            saveState();
+        }
+
         function updateSide(i, side) { selectedItems[i].side = (selectedItems[i].side === side) ? '' : side; renderBottles(); saveState(); }
         function removeItem(i) { const name = selectedItems[i].name; selectedItems.splice(i, 1); document.getElementById('chip-' + name)?.classList.remove('selected'); renderBottles(); saveState(); }
         function updateName(i, v) { selectedItems[i].name = v; saveState(); }
         function updateNote(i, v) { selectedItems[i].note = v; saveState(); }
         function updateColor(i, type) { selectedItems[i].color = COLORS[type]; renderBottles(); saveState(); }
+        
         function startPress(i, dir) { stopPress(); updateStep(i, dir); pressTimer = setInterval(() => updateStep(i, dir), 60); }
         function stopPress() { clearInterval(pressTimer); saveState(); }
-        function updateStep(i, dir) { if (!selectedItems[i]) return; let n = selectedItems[i].level + dir; if (n < 0) n = 0; if (n > 100) n = 100; selectedItems[i].level = n; document.getElementById(`liq-${i}`).style.height = n + '%'; document.getElementById(`lv-${i}`).innerText = n + '%'; }
+        
+        function updateStep(i, dir) { 
+            if (!selectedItems[i]) return; 
+            let n = selectedItems[i].level + dir; 
+            if (n < 0) n = 0; 
+            if (n > 100) n = 100; 
+            selectedItems[i].level = n; 
+            document.getElementById(`liq-${i}`).style.height = n + '%'; 
+            document.getElementById(`inp-${i}`).value = n; 
+        }
+
         function saveState() { localStorage.setItem('binMakerData', JSON.stringify(selectedItems)); }
         function loadState() { const saved = localStorage.getItem('binMakerData'); if (saved && selectedItems.length === 0) { selectedItems = JSON.parse(saved); } selectedItems.forEach(item => { document.getElementById('chip-' + item.name)?.classList.add('selected'); }); renderBottles(); }
         function selectCategory(cat, el) { currentCategory = cat; document.querySelectorAll('.tab').forEach(t => t.classList.remove('active')); el.classList.add('active'); document.getElementById('previewCategoryLabel').innerText = cat === '2D' ? '2D / 二次元' : 'REAL / 現実'; }
         function toggleModal(s) { document.getElementById('ruleModal').style.display = s ? 'flex' : 'none'; }
         
-        // 修正：内部的なリセット（確認なし）
         function resetInternal() {
             selectedItems = [];
             document.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
         }
 
-        // 修正：ボタンクリック時の全解除（確認あり）
         function handleClearClick() {
             if(!confirm("全ての項目を解除しますか？")) return;
             resetInternal();
@@ -285,7 +313,6 @@
             saveState();
         }
         
-        // 修正：ランダム選択（確認なしでリセットしてから追加）
         function randomSelect() {
             resetInternal(); 
             const shuffled = [...ALL_PRESETS].sort(() => 0.5 - Math.random());
@@ -294,10 +321,10 @@
                 selectedItems.push({ 
                     name: name, 
                     color: COLORS.pink, 
-                    level: Math.floor(Math.random() * 80) + 20, // ランダム時は20〜100%で適当に注ぐ
+                    level: 0, // 修正：ランダム時は「空」で生成
                     note: '', 
                     side: '', 
-                    isTaggable: !!majorGroup.taggable 
+                    isTaggable: !!majorGroup?.taggable 
                 });
                 document.getElementById('chip-' + name)?.classList.add('selected');
             });
