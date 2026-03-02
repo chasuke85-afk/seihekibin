@@ -41,7 +41,6 @@
         .liquid { position: absolute; bottom: 0; width: 100%; transition: height 0.1s linear; }
         .p-btn { width: 40px; height: 40px; border-radius: 50%; border: none; background: #f0f0f0; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; touch-action: none; }
         
-        /* パーセント入力用スタイル */
         .percent-input { width: 50px; text-align: center; border: 1px solid #eee; background: #f9f9f9; padding: 4px; border-radius: 4px; font-weight: bold; font-size: 0.85rem; -moz-appearance: textfield; }
         .percent-input::-webkit-inner-spin-button, .percent-input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
 
@@ -77,9 +76,7 @@
                 <input type="text" id="customInput" placeholder="自由入力..." style="flex: 1;">
                 <button onclick="addCustomItem()" style="background: #333; color: white; border: none; border-radius: 8px; padding: 0 15px; font-weight: bold;">追加</button>
             </div>
-
             <div class="preset-scroll" id="presetScrollArea"></div>
-
             <div class="selector-footer">
                 <button class="btn-mini" onclick="handleClearClick()" style="background:#bbb;">全解除</button>
                 <button class="btn-mini" onclick="randomSelect()" style="background:var(--guide-blue);">ランダムに20個選ぶ</button>
@@ -90,8 +87,8 @@
             <span class="box-title">〜 使い方 〜</span>
             <div style="font-size: 0.8rem; line-height: 1.8; color: var(--guide-blue); font-weight: bold; text-align: center;">
                 1. 瓶を最大20個選ぶ（名称変更もOK）<br>
-                2. 下の瓶に「色」と「量」を注ぐ（直接入力も可）<br>
-                3. 完成したらスクリーンショットで保存！
+                2. 下の瓶に「色」と「量」を注ぐ<br>
+                3. 完成したら答え合わせサイトにURLを貼る！
             </div>
             <button class="btn-mini" onclick="toggleModal(true)" style="width:100%; margin-top:12px; background:var(--rule-color); height:40px; font-size:0.85rem;">色のルールを見る</button>
         </div>
@@ -100,8 +97,8 @@
 
         <div style="width:94%; max-width:500px; display:flex; flex-direction:column; gap:10px; margin: 20px 0;">
             <button onclick="generatePreview()" style="height:50px; background:#333; color:white; border-radius:12px; border:none; font-weight:bold; font-size:1rem; cursor:pointer;">✨ 完成プレビューを表示する</button>
-            <button onclick="copyShareURL()" style="height:50px; background:white; color:var(--guide-blue); border:2px solid var(--guide-blue); border-radius:12px; font-weight:bold; font-size:0.9rem; cursor:pointer;">🔗 項目リストだけをURLで共有</button>
-            <button onclick="copyFullDataURL()" style="height:50px; background:var(--accent); color:white; border:none; border-radius:12px; font-weight:bold; font-size:0.9rem; cursor:pointer;">🎁 全データ（色・量含む）をURLで共有</button>
+            <button onclick="copyQuestionURL()" style="height:50px; background:white; color:var(--guide-blue); border:2px solid var(--guide-blue); border-radius:12px; font-weight:bold; font-size:0.9rem; cursor:pointer;">🎁 Bさんへの出題用URL（空瓶）</button>
+            <button onclick="copyFullDataURL()" style="height:50px; background:var(--accent); color:white; border:none; border-radius:12px; font-weight:bold; font-size:0.9rem; cursor:pointer;">🔗 答え合わせ用URL（回答済）</button>
         </div>
     </div>
 
@@ -130,49 +127,16 @@
 
     <script>
         const STRUCTURED_DATA = [
-            {
-                major: "① 属性・フェチパーツ",
-                middles: [
-                    { label: "身体", items: ['長身','小柄','モデル体型','日焼け','褐色','貧乳・微乳','巨乳','お尻','手','生足・太もも','おへそ','背中','そばかす'] },
-                    { label: "髪型", items: ['ショートヘア','ロングヘア','ボブヘア','ポニーテール','ツインテール','お団子ヘア','ウルフカット','インナーカラー','ぱっつん','三つ編み','シースルーバング','デコ出し'] },
-                    { label: "性格・性質", items: ['ロリ','ショタ','お姉さん','妹・姉','ギャル','メスガキ','清楚','清楚ビッチ','無口','クーデレ','地雷系','TS','ツンデレ','天然・ドジっ子','小悪魔','ギャップ萌え','外国人・ハーフ','男の娘','オタク女子','強気・男勝り','スポーツ女子','高学歴女子','一人称名前'] }
-                ]
-            },
-            {
-                major: "② 服装・装飾",
-                middles: [
-                    { label: "衣装", items: ['制服','スーツ','和服','部屋着（パジャマ）','コスプレ','オーバーサイズ'] },
-                    { label: "下着", items: ['可愛い下着','子供っぽい下着','ガーターベルト'] },
-                    { label: "装飾", items: ['メガネ','チョーカー'] }
-                ]
-            },
-            {
-                major: "③ シチュエーション・関係性",
-                middles: [
-                    { label: "関係", items: ['幼馴染','同い年','先生と生徒','主従関係','体格差','片思い','共依存'] },
-                    { label: "状況", items: ['密室','野外・露出','背徳感','NTR','初対面','喧嘩中','執着','敬語'] }
-                ]
-            },
-            {
-                major: "④ こだわりフェチ",
-                middles: [
-                    { label: "要素", items: ['ローション・オイル','汗','あくび','くしゃみ','声','泣き顔','怒り顔','拒絶'] }
-                ]
-            },
-            {
-                major: "⑤ アクション・プレイ（★タグあり）",
-                taggable: true,
-                middles: [
-                    { label: "愛撫・交流", items: ['キス','ハグ','膝枕','頭を撫でる','首を噛む','おねだり'] },
-                    { label: "攻防・プレイ", items: ['指舐め','耳攻め','囁き','首絞め','命令','催眠','目隠し','緊縛','放置','拘束','M','S','お漏らし','焦らし'] }
-                ]
-            }
+            { major: "① 属性・フェチパーツ", middles: [{ label: "身体", items: ['長身','小柄','モデル体型','日焼け','褐色','貧乳・微乳','巨乳','お尻','手','生足・太もも','おへそ','背中','そばかす'] },{ label: "髪型", items: ['ショートヘア','ロングヘア','ボブヘア','ポニーテール','ツインテール','お団子ヘア','ウルフカット','インナーカラー','ぱっつん','三つ編み','シースルーバング','デコ出し'] },{ label: "性格・性質", items: ['ロリ','ショタ','お姉さん','妹・姉','ギャル','メスガキ','清楚','清楚ビッチ','無口','クーデレ','地雷系','TS','ツンデレ','天然・ドジっ子','小悪魔','ギャップ萌え','外国人・ハーフ','男の娘','オタク女子','強気・男勝り','スポーツ女子','高学歴女子','一人称名前'] }] },
+            { major: "② 服装・装飾", middles: [{ label: "衣装", items: ['制服','スーツ','和服','部屋着（パジャマ）','コスプレ','オーバーサイズ'] },{ label: "下着", items: ['可愛い下着','子供っぽい下着','ガーターベルト'] },{ label: "装飾", items: ['メガネ','チョーカー'] }] },
+            { major: "③ シチュエーション・関係性", middles: [{ label: "関係", items: ['幼馴染','同い年','先生と生徒','主従関係','体格差','片思い','共依存'] },{ label: "状況", items: ['密室','野外・露出','背徳感','NTR','初対面','喧嘩中','執着','敬語'] }] },
+            { major: "④ こだわりフェチ", middles: [{ label: "要素", items: ['ローション・オイル','汗','あくび','くしゃみ','声','泣き顔','怒り顔','拒絶'] }] },
+            { major: "⑤ アクション・プレイ（★タグあり）", taggable: true, middles: [{ label: "愛撫・交流", items: ['キス','ハグ','膝枕','頭を撫でる','首を噛む','おねだり'] },{ label: "攻防・プレイ", items: ['指舐め','耳攻め','囁き','首絞め','命令','催眠','目隠し','緊縛','放置','拘束','M','S','お漏らし','焦らし'] }] }
         ];
 
         const COLORS = { pink: '#ff5d8f', blue: '#6366f1' };
         let selectedItems = [];
         let pressTimer = null;
-        let currentCategory = '2D';
         const ALL_PRESETS = STRUCTURED_DATA.flatMap(m => m.middles.flatMap(mid => mid.items));
 
         function init() {
@@ -182,13 +146,11 @@
                 majorTitle.className = 'major-title';
                 majorTitle.innerText = majorGroup.major;
                 scrollArea.appendChild(majorTitle);
-
                 majorGroup.middles.forEach(mid => {
                     const midLabel = document.createElement('div');
                     midLabel.className = 'middle-label';
                     midLabel.innerText = mid.label;
                     scrollArea.appendChild(midLabel);
-
                     const groupDiv = document.createElement('div');
                     groupDiv.className = 'preset-group';
                     mid.items.forEach(name => {
@@ -222,8 +184,7 @@
 
         function addCustomItem() {
             const val = document.getElementById('customInput').value.trim();
-            if (!val) return;
-            if (selectedItems.length >= 20) return alert("上限20個です！");
+            if (!val || selectedItems.length >= 20) return;
             selectedItems.push({ name: val, color: COLORS.pink, level: 0, note: '', side: '', isTaggable: false });
             document.getElementById('customInput').value = '';
             renderBottles();
@@ -242,7 +203,6 @@
                         <div class="side-tag ${b.side==='相手側'?'active':''}" onclick="updateSide(${i}, '相手側')">#相手側</div>
                         <div class="side-tag ${b.side==='自分側'?'active':''}" onclick="updateSide(${i}, '自分側')">#自分側</div>
                     </div>` : '';
-
                 card.innerHTML = `
                     <div class="del-btn" onclick="removeItem(${i})">×</div>
                     ${sideTagsHTML}
@@ -254,10 +214,7 @@
                     <div class="bottle-frame"><div id="liq-${i}" class="liquid" style="height:${b.level}%; background:${b.color}; opacity:0.8;"></div></div>
                     <div style="display:flex; align-items:center; justify-content:center; gap:8px;">
                         <button class="p-btn" onmousedown="startPress(${i},-2)" ontouchstart="startPress(${i},-2)" onmouseup="stopPress()" ontouchend="stopPress()">−</button>
-                        <div style="display:flex; align-items:center;">
-                            <input type="number" class="percent-input" id="inp-${i}" value="${b.level}" min="0" max="100" oninput="updateLevelInput(${i}, this.value)">
-                            <span style="font-size:0.8rem; font-weight:bold; margin-left:2px;">%</span>
-                        </div>
+                        <input type="number" class="percent-input" id="inp-${i}" value="${b.level}" min="0" max="100" oninput="updateLevelInput(${i}, this.value)">
                         <button class="p-btn" onmousedown="startPress(${i},2)" ontouchstart="startPress(${i},2)" onmouseup="stopPress()" ontouchend="stopPress()">+</button>
                     </div>
                     <textarea class="comment-area" placeholder="解説..." onchange="updateNote(${i}, this.value)">${b.note || ''}</textarea>
@@ -266,31 +223,23 @@
             });
         }
 
-        // 入力フォームからレベルを更新
         function updateLevelInput(i, val) {
-            let n = parseInt(val);
-            if (isNaN(n)) n = 0;
-            if (n < 0) n = 0;
-            if (n > 100) n = 100;
+            let n = parseInt(val) || 0;
+            n = Math.max(0, Math.min(100, n));
             selectedItems[i].level = n;
             document.getElementById(`liq-${i}`).style.height = n + '%';
             saveState();
         }
-
         function updateSide(i, side) { selectedItems[i].side = (selectedItems[i].side === side) ? '' : side; renderBottles(); saveState(); }
         function removeItem(i) { const name = selectedItems[i].name; selectedItems.splice(i, 1); document.getElementById('chip-' + name)?.classList.remove('selected'); renderBottles(); saveState(); }
         function updateName(i, v) { selectedItems[i].name = v; saveState(); }
         function updateNote(i, v) { selectedItems[i].note = v; saveState(); }
         function updateColor(i, type) { selectedItems[i].color = COLORS[type]; renderBottles(); saveState(); }
-        
         function startPress(i, dir) { stopPress(); updateStep(i, dir); pressTimer = setInterval(() => updateStep(i, dir), 60); }
         function stopPress() { clearInterval(pressTimer); saveState(); }
-        
         function updateStep(i, dir) { 
             if (!selectedItems[i]) return; 
-            let n = selectedItems[i].level + dir; 
-            if (n < 0) n = 0; 
-            if (n > 100) n = 100; 
+            let n = Math.max(0, Math.min(100, selectedItems[i].level + dir)); 
             selectedItems[i].level = n; 
             document.getElementById(`liq-${i}`).style.height = n + '%'; 
             document.getElementById(`inp-${i}`).value = n; 
@@ -298,38 +247,60 @@
 
         function saveState() { localStorage.setItem('binMakerData', JSON.stringify(selectedItems)); }
         function loadState() { const saved = localStorage.getItem('binMakerData'); if (saved && selectedItems.length === 0) { selectedItems = JSON.parse(saved); } selectedItems.forEach(item => { document.getElementById('chip-' + item.name)?.classList.add('selected'); }); renderBottles(); }
-        function selectCategory(cat, el) { currentCategory = cat; document.querySelectorAll('.tab').forEach(t => t.classList.remove('active')); el.classList.add('active'); document.getElementById('previewCategoryLabel').innerText = cat === '2D' ? '2D / 二次元' : 'REAL / 現実'; }
         function toggleModal(s) { document.getElementById('ruleModal').style.display = s ? 'flex' : 'none'; }
-        
-        function resetInternal() {
-            selectedItems = [];
-            document.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
-        }
-
-        function handleClearClick() {
-            if(!confirm("全ての項目を解除しますか？")) return;
-            resetInternal();
-            renderBottles();
-            saveState();
-        }
+        function handleClearClick() { if(confirm("解除しますか？")){ selectedItems=[]; document.querySelectorAll('.chip').forEach(c=>c.classList.remove('selected')); renderBottles(); saveState(); }}
         
         function randomSelect() {
-            resetInternal(); 
-            const shuffled = [...ALL_PRESETS].sort(() => 0.5 - Math.random());
-            shuffled.slice(0, 20).forEach(name => {
-                const majorGroup = STRUCTURED_DATA.find(m => m.middles.some(mid => mid.items.includes(name)));
-                selectedItems.push({ 
-                    name: name, 
-                    color: COLORS.pink, 
-                    level: 0, // 修正：ランダム時は「空」で生成
-                    note: '', 
-                    side: '', 
-                    isTaggable: !!majorGroup?.taggable 
-                });
-                document.getElementById('chip-' + name)?.classList.add('selected');
+            selectedItems=[]; document.querySelectorAll('.chip').forEach(c=>c.classList.remove('selected'));
+            [...ALL_PRESETS].sort(()=>.5-Math.random()).slice(0,20).forEach(name=>{
+                const isTag = STRUCTURED_DATA.find(m=>m.middles.some(mid=>mid.items.includes(name)))?.taggable;
+                selectedItems.push({ name:name, color:COLORS.pink, level:0, note:'', side:'', isTaggable:!!isTag });
+                document.getElementById('chip-'+name)?.classList.add('selected');
             });
-            renderBottles();
-            saveState();
+            renderBottles(); saveState();
+        }
+
+        // URL圧縮生成（noteを除去し、プロパティ名を短縮）
+        function generateShortURL(data) {
+            const compact = data.map(item => ({
+                n: item.name,
+                l: item.level,
+                c: item.color === COLORS.pink ? 1 : 0,
+                s: item.side
+            }));
+            const b64 = btoa(encodeURIComponent(JSON.stringify(compact)));
+            return window.location.origin + window.location.pathname + '?data=' + b64;
+        }
+
+        function copyFullDataURL() {
+            if (selectedItems.length === 0) return alert("瓶を選んでください");
+            const url = generateShortURL(selectedItems);
+            navigator.clipboard.writeText(url).then(() => alert("【答え合わせ用】URLをコピーしました！"));
+        }
+
+        function copyQuestionURL() {
+            if (selectedItems.length === 0) return alert("瓶を選んでください");
+            const questionData = selectedItems.map(item => ({ ...item, level: 0, color: COLORS.pink }));
+            const url = generateShortURL(questionData);
+            navigator.clipboard.writeText(url).then(() => alert("Bさんへの【出題用】URLをコピーしました！"));
+        }
+
+        function loadFromURL() {
+            const params = new URLSearchParams(window.location.search);
+            const dataStr = params.get('data');
+            if (dataStr) {
+                try {
+                    const decoded = JSON.parse(decodeURIComponent(atob(dataStr)));
+                    selectedItems = decoded.map(d => ({
+                        name: d.n,
+                        level: d.l,
+                        color: d.c === 1 ? COLORS.pink : COLORS.blue,
+                        side: d.s || '',
+                        note: '',
+                        isTaggable: STRUCTURED_DATA.some(m => m.taggable && m.middles.some(mid => mid.items.includes(d.n)))
+                    }));
+                } catch(e) { console.error("URL解析失敗"); }
+            }
         }
 
         function generatePreview() {
@@ -344,38 +315,6 @@
                 pContainer.appendChild(card);
             });
             document.getElementById('previewArea').style.display = 'flex';
-            window.scrollTo(0, document.body.scrollHeight);
-        }
-
-        function copyShareURL() {
-            const presetIndices = []; const customNames = [];
-            selectedItems.forEach(item => { const idx = ALL_PRESETS.indexOf(item.name); if (idx !== -1) presetIndices.push(idx); else customNames.push(item.name); });
-            let shortData = presetIndices.join(',');
-            if (customNames.length > 0) shortData += '_' + btoa(encodeURIComponent(JSON.stringify(customNames)));
-            const url = window.location.origin + window.location.pathname + '?items=' + shortData;
-            navigator.clipboard.writeText(url).then(() => alert("URLをコピーしました！"));
-        }
-
-        function copyFullDataURL() {
-            const fullData = btoa(encodeURIComponent(JSON.stringify(selectedItems)));
-            const url = window.location.origin + window.location.pathname + '?data=' + fullData;
-            navigator.clipboard.writeText(url).then(() => alert("全データURLをコピーしました！"));
-        }
-
-        function loadFromURL() {
-            const params = new URLSearchParams(window.location.search);
-            const fullData = params.get('data'); const itemsData = params.get('items');
-            if (fullData) selectedItems = JSON.parse(decodeURIComponent(atob(fullData)));
-            else if (itemsData) {
-                const parts = itemsData.split('_');
-                if (parts[0]) parts[0].split(',').forEach(idx => {
-                    const name = ALL_PRESETS[parseInt(idx)];
-                    if (name) {
-                        const isTag = STRUCTURED_DATA.find(m => m.middles.some(mid => mid.items.includes(name)))?.taggable;
-                        selectedItems.push({ name: name, color: COLORS.pink, level: 0, note: '', side: '', isTaggable: !!isTag });
-                    }
-                });
-            }
         }
         
         window.onload = init;
