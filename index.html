@@ -55,7 +55,7 @@
         
         .del-btn { position: absolute; top: 10px; right: 10px; width: 26px; height: 26px; background: #fff; color: #ccc; border-radius: 50%; border: 1px solid #eee; display: flex; align-items: center; justify-content: center; font-size: 16px; cursor: pointer; }
 
-        /* フッター固定アクション */
+        /* フッターアクション */
         .footer-actions { width: 94%; max-width: 500px; display: flex; flex-direction: column; gap: 12px; margin: 30px 0 50px; }
         .btn-main { height: 55px; border-radius: 15px; border: none; font-weight: bold; cursor: pointer; font-size: 1rem; transition: 0.2s; }
         .btn-black { background: #333; color: white; }
@@ -105,13 +105,13 @@
 
         <div class="footer-actions">
             <button class="btn-main btn-black" onclick="generatePreview()">✨ 完成プレビューを表示</button>
-            <button class="btn-main btn-outline" onclick="copyQuestionURL()">🎁 出題用URLをコピー（空瓶/タグ保持）</button>
-            <button class="btn-main btn-accent" onclick="copyFullDataURL()">🔗 答え合わせ用URLをコピー</button>
+            <button class="btn-main btn-outline" onclick="copyQuestionURL()">🎁 出題用URLをコピー（URLのみ）</button>
+            <button class="btn-main btn-accent" onclick="copyFullDataURL()">🔗 答え合わせ用URLをコピー（URLのみ）</button>
         </div>
     </div>
 
     <div id="previewArea" style="display:none; width:100%; flex-direction:column; align-items:center; background:#f0f0f0; padding-bottom:50px;">
-        <div class="preview-content" id="previewTarget" style="margin-top:20px; border-radius:20px; box-shadow:0 10px 30px rgba(0,0,0,0.1);">
+        <div class="preview-content" id="previewTarget" style="margin-top:20px; border-radius:20px; box-shadow:0 10px 30px rgba(0,0,0,0.1); background:white; padding: 20px;">
             <div id="previewCategoryLabel" style="text-align:center; font-size:0.7rem; font-weight:bold; color:var(--accent); margin-bottom:5px;">2D / 二次元</div>
             <div class="main-title" style="text-align:center; margin:0 0 20px 0;">SEIHEKI BIN SHEET</div>
             <div class="preview-container" id="previewContainer" style="display:grid; grid-template-columns: repeat(4, 1fr); gap:10px;"></div>
@@ -126,7 +126,7 @@
                 <p>💗 <b>ピンク</b>：好き・性癖・ポジティブ</p>
                 <p>💙 <b>ブルー</b>：苦手・地雷・ネガティブ</p>
                 <p>📏 <b>量</b>：100%に近いほど感情が強い！</p>
-                <p>🏷️ <b>タグ</b>：アクション系では「自分側」「相手側」などの属性を指定できます。</p>
+                <p>🏷️ <b>タグ</b>：アクション系では「自分側」「相手側」などを指定できます。</p>
             </div>
             <button class="btn-main btn-black" style="width:100%;" onclick="toggleModal(false)">わかった！</button>
         </div>
@@ -219,16 +219,14 @@
         function copyFullDataURL() {
             if(selectedItems.length===0) return;
             const url = generateShortURL(selectedItems);
-            const text = `【性癖瓶：答え合わせURL】\n私の性癖はこんな感じでした！\n\n${url}\n\n#性癖瓶メーカー`;
-            navigator.clipboard.writeText(text).then(()=>alert("答え合わせURLをコピーしました！"));
+            navigator.clipboard.writeText(url).then(()=>alert("答え合わせURLをコピーしました！"));
         }
 
         function copyQuestionURL() {
             if(selectedItems.length===0) return;
             const qData = selectedItems.map(i => ({...i, level:0, color:COLORS.pink}));
             const url = generateShortURL(qData);
-            const text = `【性癖瓶：出題URL】\n私の性癖、当てられるかな？\n\n${url}\n\n#性癖瓶メーカー`;
-            navigator.clipboard.writeText(text).then(()=>alert("出題用URLをコピーしました！（タグ保持）"));
+            navigator.clipboard.writeText(url).then(()=>alert("出題用URLをコピーしました！"));
         }
 
         function loadFromURL() {
@@ -276,7 +274,7 @@
         function generatePreview() {
             const p = document.getElementById('previewContainer'); p.innerHTML='';
             selectedItems.forEach(b => {
-                const card = document.createElement('div'); card.className='preview-bottle-card';
+                const card = document.createElement('div'); card.className='preview-bottle-card'; card.style='background:white; border-radius:12px; padding:10px 5px; text-align:center; border:1px solid #f0f0f0;';
                 card.innerHTML=`<div style="font-size:0.75rem;font-weight:bold;height:3em;">${b.side?'#'+b.side+'<br>':''}${b.name}</div><div class="bottle-frame" style="width:45px;height:75px;margin:10px auto;"><div class="liquid" style="height:${b.level}%;background:${b.color};opacity:0.8;"></div></div><div style="font-size:0.65rem;">${b.level}%</div>`;
                 p.appendChild(card);
             });
