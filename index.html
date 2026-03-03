@@ -34,14 +34,10 @@
         .p-btn { width: 40px; height: 40px; border-radius: 50%; border: none; background: #f0f0f0; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; touch-action: none; }
         .percent-input { width: 50px; text-align: center; border: 1px solid #eee; background: #f9f9f9; padding: 4px; border-radius: 4px; font-weight: bold; font-size: 0.85rem; }
         .del-btn { position: absolute; top: 8px; right: 8px; width: 24px; height: 24px; background: #eee; color: #999; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; }
-        .comment-area { width: 100%; margin-top: 10px; font-size: 0.75rem; height: 45px; resize: none; border: 1px solid #f0f0f0; background: #fafafa; }
-        .btn-mini { font-size: 0.7rem; padding: 8px 12px; border-radius: 8px; border: none; cursor: pointer; background: #666; color: white; }
         #previewArea { width: 100%; display: flex; flex-direction: column; align-items: center; padding: 30px 0; background: #eee; margin-top: 30px; }
         .preview-content { background: var(--bg); padding: 20px; width: 100%; max-width: 900px; }
         .preview-container { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
         .preview-bottle-card { background: white; border-radius: 12px; padding: 10px 5px; text-align: center; border: 1px solid #f0f0f0; }
-        .preview-side-tag { font-size: 0.6rem; font-weight: bold; margin-bottom: 2px; display: inline-block; padding: 1px 4px; border-radius: 3px; background: #333; color: white; }
-        .preview-note { font-size: 0.65rem; color: #666; margin-top: 5px; white-space: pre-wrap; }
         .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 20px; }
         .modal-content { background: white; border-radius: 25px; padding: 25px; width: 100%; max-width: 450px; text-align: center; }
     </style>
@@ -73,7 +69,7 @@
             <span class="box-title">〜 使い方 〜</span>
             <div style="font-size: 0.8rem; line-height: 1.8; color: var(--guide-blue); font-weight: bold; text-align: center;">
                 1. 瓶を最大20個選ぶ<br>
-                2. 「色」と「量」を注ぐ<br>
+                2. 「色」と「量」を注ぐ（アクション系はタグ付き）<br>
                 3. 完成したら出題・共有URLを発行！
             </div>
             <button class="btn-mini" onclick="toggleModal(true)" style="width:100%; margin-top:12px; background:var(--rule-color); height:40px;">色のルールを見る</button>
@@ -83,7 +79,7 @@
 
         <div style="width:94%; max-width:500px; display:flex; flex-direction:column; gap:10px; margin: 20px 0;">
             <button onclick="generatePreview()" style="height:50px; background:#333; color:white; border-radius:12px; border:none; font-weight:bold; cursor:pointer;">✨ 完成プレビューを表示する</button>
-            <button onclick="copyQuestionURL()" style="height:50px; background:white; color:var(--guide-blue); border:2px solid var(--guide-blue); border-radius:12px; font-weight:bold; cursor:pointer;">🎁 Bさんへの出題用URL（短縮版）</button>
+            <button onclick="copyQuestionURL()" style="height:50px; background:white; color:var(--guide-blue); border:2px solid var(--guide-blue); border-radius:12px; font-weight:bold; cursor:pointer;">🎁 Bさんへの出題用URL（タグ保持版）</button>
             <button onclick="copyFullDataURL()" style="height:50px; background:var(--accent); color:white; border:none; border-radius:12px; font-weight:bold; cursor:pointer;">🔗 答え合わせ用URL（短縮版）</button>
         </div>
     </div>
@@ -104,6 +100,7 @@
                 <p>● <b>ピンク</b>：好き・性癖・ポジティブ</p>
                 <p>● <b>ブルー</b>：苦手・地雷・ネガティブ</p>
                 <p>● <b>量</b>：100%に近いほど感情が強い！</p>
+                <p>● <b>タグ</b>：攻防プレイなど「どちらの役割か」を指定できます</p>
             </div>
             <button class="btn-mini" style="width:100%; height:45px; background:#333;" onclick="toggleModal(false)">OK！</button>
         </div>
@@ -113,7 +110,7 @@
         const STRUCTURED_DATA = [
             { major: "① 属性・フェチパーツ", middles: [{ label: "身体", items: ['長身','小柄','モデル体型','日焼け','褐色','貧乳・微乳','巨乳','お尻','手','生足・太もも','おへそ','背中','そばかす'] },{ label: "髪型", items: ['ショートヘア','ロングヘア','ボブヘア','ポニーテール','ツインテール','お団子ヘア','ウルフカット','インナーカラー','ぱっつん','三つ編み','シースルーバング','デコ出し'] },{ label: "性格・性質", items: ['ロリ','ショタ','お姉さん','妹・姉','ギャル','メスガキ','清楚','清楚ビッチ','無口','クーデレ','地雷系','TS','ツンデレ','天然・ドジっ子','小悪魔','ギャップ萌え','外国人・ハーフ','男の娘','オタク女子','強気・男勝り','スポーツ女子','高学歴女子','一人称名前'] }] },
             { major: "② 服装・装飾", middles: [{ label: "衣装", items: ['制服','スーツ','和服','部屋着（パジャマ）','コスプレ','オーバーサイズ'] },{ label: "下着", items: ['可愛い下着','子供っぽい下着','ガーターベルト'] },{ label: "装飾", items: ['メガネ','チョーカー'] }] },
-            { major: "③ シチュエーション・関係性", middles: [{ label: "関係", items: ['幼馴染','同い年','先生と生徒','主従関係','体格差','片思い','共依存'] },{ label: "状況", items: ['密室','野外・露出','背徳感','NTR','初対面','喧嘩中','執着','敬語'] }] },
+            { major: "③ シチュエーション・関係性", middles: [{ label: "関係", items: ['幼馴染','同い年','先生と生徒','主従関係','体格差','片思い','共依存'] },{ label: "状況", items: ['密室','野外・露出','背徳感','NTR','初対面','喧嘩中','執着','開拓','敬語'] }] },
             { major: "④ こだわりフェチ", middles: [{ label: "要素", items: ['ローション・オイル','汗','あくび','くしゃみ','声','泣き顔','怒り顔','拒絶'] }] },
             { major: "⑤ アクション・プレイ（★タグあり）", taggable: true, middles: [{ label: "愛撫・交流", items: ['キス','ハグ','膝枕','頭を撫でる','首を噛む','おねだり'] },{ label: "攻防・プレイ", items: ['指舐め','耳攻め','囁き','首絞め','命令','催眠','目隠し','緊縛','放置','拘束','M','S','お漏らし','焦らし'] }] }
         ];
@@ -137,6 +134,10 @@
                 });
             });
             loadFromURL(); renderBottles();
+        }
+
+        function isTaggableItem(name) {
+            return STRUCTURED_DATA.some(m => m.taggable && m.middles.some(mid => mid.items.includes(name)));
         }
 
         function toggleItem(name, taggable) {
@@ -177,7 +178,6 @@
             });
         }
 
-        // --- URL短縮ロジック (v2形式) ---
         function generateShortURL(data) {
             const parts = data.map(item => {
                 const idx = ALL_PRESETS.indexOf(item.name);
@@ -187,18 +187,24 @@
                 const sideId = item.side === '相手側' ? 1 : (item.side === '自分側' ? 2 : 0);
                 return `${namePart}_${val}_${sideId}`;
             });
+            // パラメータを整理
             return window.location.origin + window.location.pathname + '?v2=' + parts.join('.');
         }
 
         function copyFullDataURL() {
             if(selectedItems.length===0) return;
-            navigator.clipboard.writeText(generateShortURL(selectedItems)).then(()=>alert("【答え合わせ用】短縮URLをコピーしました！"));
+            const url = generateShortURL(selectedItems);
+            const text = "【性癖瓶】答え合わせ用URLはこちら！\n\n" + url + "\n\n";
+            navigator.clipboard.writeText(text).then(()=>alert("【答え合わせ用】URLをコピーしました！"));
         }
 
         function copyQuestionURL() {
             if(selectedItems.length===0) return;
-            const qData = selectedItems.map(i => ({...i, level:0, color:COLORS.pink, side:''}));
-            navigator.clipboard.writeText(generateShortURL(qData)).then(()=>alert("【出題用】短縮URLをコピーしました！"));
+            // レベルと色だけリセットし、side（タグ）はそのまま保持したデータを作成
+            const qData = selectedItems.map(i => ({...i, level:0, color:COLORS.pink}));
+            const url = generateShortURL(qData);
+            const text = "【性癖瓶】出題用URL（タグ保持）はこちら！\n\n" + url + "\n\n";
+            navigator.clipboard.writeText(text).then(()=>alert("【出題用】URLをコピーしました！\n（タグ情報は瓶に反映されています）"));
         }
 
         function loadFromURL() {
@@ -212,7 +218,7 @@
                         name, level: Math.abs(parseInt(v)),
                         color: parseInt(v) >= 0 ? COLORS.pink : COLORS.blue,
                         side: s==='1'?'相手側':(s==='2'?'自分側':''),
-                        note:'', isTaggable: STRUCTURED_DATA.some(m=>m.taggable && m.middles.some(mid=>mid.items.includes(name)))
+                        note:'', isTaggable: isTaggableItem(name)
                     };
                 });
             } else {
@@ -237,8 +243,7 @@
         function randomSelect() {
             selectedItems=[]; document.querySelectorAll('.chip').forEach(c=>c.classList.remove('selected'));
             [...ALL_PRESETS].sort(()=>.5-Math.random()).slice(0,20).forEach(n=>{
-                const isT = STRUCTURED_DATA.find(m=>m.taggable && m.middles.some(mid=>mid.items.includes(n)));
-                selectedItems.push({name:n, color:COLORS.pink, level:0, note:'', side:'', isTaggable:!!isT});
+                selectedItems.push({name:n, color:COLORS.pink, level:0, note:'', side:'', isTaggable:isTaggableItem(n)});
                 document.getElementById('chip-'+n)?.classList.add('selected');
             });
             renderBottles(); saveState();
